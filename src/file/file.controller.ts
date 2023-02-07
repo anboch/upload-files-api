@@ -98,7 +98,7 @@ export class FileController extends BaseController {
 	async download({ params }: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			const filePath = await this.fileService.getFilePathById(params.id);
-			res.download(filePath);
+			res.download(filePath, filePath.split('#')[1]);
 		} catch (error) {
 			return next(error);
 		}
