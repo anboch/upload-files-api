@@ -20,7 +20,7 @@ export class AuthMiddleware implements IMiddleware {
 		verify(token, this.secret, (err, payload) => {
 			if (err) {
 				next();
-			} else if (payload && typeof payload === 'object') {
+			} else if (typeof payload === 'object') {
 				req.userId = payload.userId;
 				next();
 			}

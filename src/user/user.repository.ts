@@ -7,13 +7,13 @@ import { TypeormService } from '../database/typeorm.service';
 import { Repository } from 'typeorm';
 
 export interface IUserRepository {
-	create: (user: Omit<User, '_id'>) => Promise<User>;
+	create: (user: User) => Promise<User>;
 	findById: (userId: string) => Promise<User | null>;
 }
 
 @injectable()
 export class UserRepository implements IUserRepository {
-	userModel: Repository<User>;
+	private userModel: Repository<User>;
 	constructor(@inject(TYPES.TypeormService) private typeormService: TypeormService) {
 		this.userModel = this.typeormService.dataSource.getRepository(User);
 	}

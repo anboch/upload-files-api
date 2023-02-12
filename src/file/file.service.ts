@@ -17,16 +17,16 @@ import {
 
 @injectable()
 export class FileService {
-	constructor(
-		@inject(TYPES.ConfigService) private configService: IConfigService,
-		@inject(TYPES.FileRepository) private fileRepository: FileRepository,
-	) {}
+	constructor(@inject(TYPES.FileRepository) private fileRepository: IFileRepository) {}
 
 	async prepareAndSaveFileInfo(
 		fileId: string,
 		rawFileInfo: Express.Multer.File,
 	): Promise<FileInfo> {
 		const { filename, mimetype: mimeType, size } = rawFileInfo;
+		if (!filename.split('#')[1]) {
+			throw new Error(PREPARE_FILE_INFO_FAILED);
+		}
 		const parsedName = path.parse(filename.split('#')[1]);
 		const extension = parsedName.ext;
 		const title = parsedName.name;
@@ -55,14 +55,14 @@ export class FileService {
 		return fileInfo;
 	}
 
-	async removeFileInfoById(fileId: string): Promise<void> {
+	private async removeFileInfoById(fileId: string): Promise<void> {
 		const { affected } = await this.fileRepository.removeFileInfoById(fileId);
 		if (!affected) {
 			throw new Error(REMOVE_FILE_INFO_FAILED);
 		}
 	}
 
-	getFilePathByFileInfo(fileInfo: FileInfo): string {
+	private getFilePathByFileInfo(fileInfo: FileInfo): string {
 		return path.join(
 			process.cwd(),
 			UPLOAD_DIR_TITLE,
@@ -79,11 +79,11 @@ export class FileService {
 		const filePath = await this.getFilePathById(fileId);
 		await this.removeFileInfoById(fileId);
 
-		fs.unlink(filePath, (err) => {
-			if (err) {
-				throw new Error(REMOVE_FILE_FAILED);
-			}
-		});
+		try {
+			await fs.promises.unlink(filePath);
+		} catch (error) {
+			throw new Error(REMOVE_FILE_FAILED);
+		}
 	}
 
 	async updateFileInfoAndFile(fileId: string, rawFileInfo: Express.Multer.File): Promise<void> {
@@ -93,10 +93,10 @@ export class FileService {
 		const tempFileNameWithId = rawFileInfo.filename;
 		const tempFilePath = path.join(process.cwd(), UPLOAD_DIR_TITLE, tempFileNameWithId);
 		const newFilePath = this.getFilePathByFileInfo(newFileInfo);
-		fs.rename(tempFilePath, newFilePath, (err) => {
-			if (err) {
-				throw new Error(RENAME_FILE_FAILED);
-			}
-		});
+		try {
+			await fs.promises.rename(tempFilePath, newFilePath);
+		} catch (error) {
+			throw new Error(RENAME_FILE_FAILED);
+		}
 	}
 }

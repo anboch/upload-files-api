@@ -51,15 +51,9 @@ export class AuthService {
 		}
 	}
 
-	async addTokensFromSessionToBlackList(session: Session): Promise<void> {
-		const accessTokenPayload = this.getPayloadFromJWT(
-			session.accessToken,
-			this.configService.get('JWT_ACCESS_SECRET') as string,
-		);
-		const refreshTokenPayload = this.getPayloadFromJWT(
-			session.refreshToken,
-			this.configService.get('JWT_REFRESH_SECRET') as string,
-		);
+	private async addTokensFromSessionToBlackList(session: Session): Promise<void> {
+		const accessTokenPayload = this.getPayloadFromJWT(session.accessToken);
+		const refreshTokenPayload = this.getPayloadFromJWT(session.refreshToken);
 
 		await this.authRepository.addJWTtoBlacklist(
 			session.accessToken,
@@ -76,7 +70,7 @@ export class AuthService {
 		return this.authRepository.isTokenInBlacklist(token);
 	}
 
-	async validateSignInData({ id, password }: SignInDto): Promise<boolean> {
+	private async validateSignInData({ id, password }: SignInDto): Promise<boolean> {
 		const existedUser = await this.userService.getUserById(id);
 		if (!existedUser) {
 			throw new Error(USER_NOT_FOUND_ERROR);
@@ -109,14 +103,13 @@ export class AuthService {
 		return this.signAndSaveTokensToSession(req.userId);
 	}
 
-	async signAndSaveTokensToSession(userId: string): Promise<Session> {
+	private async signAndSaveTokensToSession(userId: string): Promise<Session> {
 		const accessToken = await this.signAccessJWT(userId);
 		const refreshToken = await this.signRefreshJWT(userId);
-		await this.authRepository.savedTokensToSession({ accessToken, refreshToken });
-		return { accessToken, refreshToken };
+		return this.authRepository.savedTokensToSession({ accessToken, refreshToken });
 	}
 
-	signAccessJWT(userId: string): Promise<string> {
+	private signAccessJWT(userId: string): Promise<string> {
 		const expiresInSec = this.configService.get('JWT_ACCESS_EXPIRES_IN_SEC');
 		return this.signJWT(
 			userId,
@@ -125,7 +118,7 @@ export class AuthService {
 		);
 	}
 
-	signRefreshJWT(userId: string): Promise<string> {
+	private signRefreshJWT(userId: string): Promise<string> {
 		const expiresInSec = this.configService.get('JWT_REFRESH_EXPIRES_IN_SEC');
 		return this.signJWT(
 			userId,
@@ -134,7 +127,7 @@ export class AuthService {
 		);
 	}
 
-	signJWT(userId: string, secret: string, expiresIn: number | null): Promise<string> {
+	private signJWT(userId: string, secret: string, expiresIn: number | null): Promise<string> {
 		const payload: Pick<Request, 'userId'> = { userId };
 		const signOptions: SignOptions = { algorithm: 'HS256' };
 		if (expiresIn) {
@@ -152,7 +145,7 @@ export class AuthService {
 		});
 	}
 
-	getPayloadFromJWT(token: string, secret: string): JwtPayload {
+	private getPayloadFromJWT(token: string): JwtPayload {
 		const decoded = jwt.decode(token, { complete: true });
 		if (!decoded?.payload || typeof decoded?.payload === 'string') {
 			throw new Error('Failed to decode jwt payload');

@@ -12,10 +12,11 @@ export class MulterService {
 	upload: Multer;
 
 	constructor() {
+		const filePath = path.join(process.cwd(), UPLOAD_DIR_TITLE);
 		this.storage = multer.diskStorage({
 			destination: function (req, file, cb) {
-				fs.mkdir(path.join(process.cwd(), UPLOAD_DIR_TITLE), () => {
-					cb(null, path.join(process.cwd(), UPLOAD_DIR_TITLE));
+				fs.mkdir(filePath, () => {
+					cb(null, filePath);
 				});
 			},
 
