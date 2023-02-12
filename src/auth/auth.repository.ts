@@ -6,9 +6,18 @@ import { TypeormService } from '../database/typeorm.service';
 import { DeleteResult, Repository } from 'typeorm';
 import { JWTBlacklistItem, Session } from './auth.entity';
 
+export interface IAuthRepository {
+	addJWTtoBlacklist: (token: string, tokenExpiresOnSec: number | null) => Promise<JWTBlacklistItem>;
+	removeExpiredTokensFromBlackList: () => Promise<void>;
+	isTokenInBlacklist: (token: string) => Promise<boolean>;
+	findSessionByAccessToken: (accessToken: string) => Promise<Session | null>;
+	findSessionByRefreshToken: (refreshToken: string) => Promise<Session | null>;
+	removeSessionByRefreshToken: (refreshToken: string) => Promise<DeleteResult>;
+	savedTokensToSession: ({ accessToken, refreshToken }: Session) => Promise<Session>;
+}
 
 @injectable()
-export class AuthRepository {
+export class AuthRepository implements IAuthRepository {
 	// todo redo authRepository to REDIS for performance
 	private jwtBlacklistModel: Repository<JWTBlacklistItem>;
 	private sessionModel: Repository<Session>;

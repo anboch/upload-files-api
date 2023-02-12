@@ -10,12 +10,12 @@ import { UserRepository, IUserRepository } from './user/user.repository';
 import { UserService, IUserService } from './user/user.service';
 import { TypeormService } from './database/typeorm.service';
 import { AuthController } from './auth/auth.controller';
-import { AuthRepository } from './auth/auth.repository';
+import { AuthRepository, IAuthRepository } from './auth/auth.repository';
 import { AuthService } from './auth/auth.service';
 import { MulterService } from './storage/multer.service';
 import { FileController } from './file/file.controller';
 import { FileService } from './file/file.service';
-import { FileRepository } from './file/file.repository';
+import { FileRepository, IFileRepository } from './file/file.repository';
 import { AccessJWTMiddleware } from './middlewares/accessJWT.middleware';
 import { RefreshJWTMiddleware } from './middlewares/refreshJWT.middleware';
 import { UploadFileMiddleware } from './middlewares/upload-file.middleware';
@@ -42,13 +42,13 @@ const userBindings = new ContainerModule((bind: interfaces.Bind) => {
 const fileBindings = new ContainerModule((bind: interfaces.Bind) => {
 	bind<FileController>(TYPES.FileController).to(FileController);
 	bind<FileService>(TYPES.FileService).to(FileService);
-	bind<FileRepository>(TYPES.FileRepository).to(FileRepository).inSingletonScope();
+	bind<IFileRepository>(TYPES.FileRepository).to(FileRepository).inSingletonScope();
 });
 
 const authBindings = new ContainerModule((bind: interfaces.Bind) => {
 	bind<AuthController>(TYPES.AuthController).to(AuthController);
 	bind<AuthService>(TYPES.AuthService).to(AuthService);
-	bind<AuthRepository>(TYPES.AuthRepository).to(AuthRepository).inSingletonScope();
+	bind<IAuthRepository>(TYPES.AuthRepository).to(AuthRepository).inSingletonScope();
 });
 
 const middlewareBindings = new ContainerModule((bind: interfaces.Bind) => {

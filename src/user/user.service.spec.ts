@@ -7,71 +7,47 @@ import { UserService } from './user.service';
 import { IUserService } from './user.service';
 import { IConfigService } from '../config/config.service';
 import { TYPES } from '../common/constants';
+import { SignUpDto } from '../auth/dto/sign-up.dto';
 
-// const ConfigServiceMock: IConfigService = {
-// 	get: jest.fn(),
-// };
+const ConfigServiceMock: IConfigService = {
+	get: jest.fn(),
+};
 
-// const userRepositoryMock: IUserRepository = {
-// 	create: jest.fn(),
-// 	findByPhone: jest.fn(),
-// 	findById: jest.fn(),
-// 	findAll: jest.fn(),
-// };
+const userRepositoryMock: IUserRepository = {
+	create: jest.fn(),
+	findById: jest.fn(),
+};
 
-// const container = new Container();
-// let configService: IConfigService;
-// let userRepository: IUserRepository;
-// let userService: IUserService;
+const container = new Container();
+let configService: IConfigService;
+let userRepository: IUserRepository;
+let userService: IUserService;
 
-// beforeAll(() => {
-// 	container.bind<IConfigService>(TYPES.ConfigService).toConstantValue(ConfigServiceMock);
-// 	container.bind<IUserRepository>(TYPES.UserRepository).toConstantValue(userRepositoryMock);
-// 	container.bind<IUserService>(TYPES.UserService).to(UserService);
+beforeAll(() => {
+	container.bind<IConfigService>(TYPES.ConfigService).toConstantValue(ConfigServiceMock);
+	container.bind<IUserRepository>(TYPES.UserRepository).toConstantValue(userRepositoryMock);
+	container.bind<IUserService>(TYPES.UserService).to(UserService);
 
-// 	configService = container.get<IConfigService>(TYPES.ConfigService);
-// 	userRepository = container.get<IUserRepository>(TYPES.UserRepository);
-// 	userService = container.get<IUserService>(TYPES.UserService);
-// });
+	configService = container.get<IConfigService>(TYPES.ConfigService);
+	userRepository = container.get<IUserRepository>(TYPES.UserRepository);
+	userService = container.get<IUserService>(TYPES.UserService);
+});
 
-// let createdUser: User | undefined;
+let createdUser: User | undefined;
 
-// const mockDataForRegisterUser: UserRegisterDto = {
-// 	fullName: 'Alexander',
-// 	role: Role.LAWYER,
-// 	phoneNumber: '+79998887766',
-// 	password: 'password',
-// 	lawArea: ['Административное право', 'Семейное право'],
-// };
+const mockDataForSignUp: SignUpDto = {
+	id: '+79998887766',
+	password: 'password',
+};
 
-// describe('User Service', () => {
-// 	it('Should create User', async () => {
-// 		configService.get = jest.fn().mockReturnValueOnce('1');
-// 		userRepository.create = jest.fn().mockImplementationOnce((data: Omit<User, '_id'>): User => {
-// 			return { ...data, _id: new mongoose.Types.ObjectId('63c0755b543d376b66093161') };
-// 		});
+describe('User Service', () => {
+	it('Should create User', async () => {
+		configService.get = jest.fn().mockReturnValueOnce('1');
+		userRepository.create = jest.fn().mockImplementationOnce((user: User): User => {
+			return user;
+		});
 
-// 		createdUser = await userService.createUser(mockDataForRegisterUser);
-// 		expect(createdUser?.passwordHash).not.toEqual(mockDataForRegisterUser.password);
-// 	});
-
-// 	it('Should validate User', async () => {
-// 		userRepository.findByPhone = jest.fn().mockReturnValueOnce(createdUser);
-
-// 		const user = await userService.validateUser({
-// 			phoneNumber: mockDataForRegisterUser.phoneNumber,
-// 			password: mockDataForRegisterUser.password,
-// 		});
-// 		expect(user).toEqual(createdUser);
-// 	});
-
-// 	it('Should NOT validate User - wrong password', async () => {
-// 		userRepository.findByPhone = jest.fn().mockReturnValueOnce(createdUser);
-
-// 		const user = await userService.validateUser({
-// 			phoneNumber: mockDataForRegisterUser.phoneNumber,
-// 			password: mockDataForRegisterUser.password + '1',
-// 		});
-// 		expect(user).toBeNull();
-// 	});
-// });
+		createdUser = await userService.createUser(mockDataForSignUp);
+		expect(createdUser?.passwordHash).not.toEqual(mockDataForSignUp.password);
+	});
+});

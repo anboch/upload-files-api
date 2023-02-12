@@ -11,16 +11,17 @@ import { IUserService } from '../user/user.service';
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import { SignInDto } from './dto/sign-in.dto';
 import { USER_NOT_FOUND_ERROR } from '../user/user.constants';
-import { AuthRepository } from './auth.repository';
+import { IAuthRepository } from './auth.repository';
 import { Session } from './auth.entity';
 import { INVALID_SIGNIN_DATA } from './auth.constants';
+import { nanoid } from 'nanoid';
 
 @injectable()
 export class AuthService {
 	constructor(
 		@inject(TYPES.ConfigService) private configService: IConfigService,
 		@inject(TYPES.UserService) private userService: IUserService,
-		@inject(TYPES.AuthRepository) private authRepository: AuthRepository,
+		@inject(TYPES.AuthRepository) private authRepository: IAuthRepository,
 	) {}
 
 	async signUp(dto: SignUpDto): Promise<User> {
@@ -129,7 +130,7 @@ export class AuthService {
 
 	private signJWT(userId: string, secret: string, expiresIn: number | null): Promise<string> {
 		const payload: Pick<Request, 'userId'> = { userId };
-		const signOptions: SignOptions = { algorithm: 'HS256' };
+		const signOptions: SignOptions = { algorithm: 'HS256', jwtid: nanoid() };
 		if (expiresIn) {
 			signOptions.expiresIn = expiresIn;
 		}

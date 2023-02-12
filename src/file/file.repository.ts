@@ -6,8 +6,16 @@ import { TypeormService } from '../database/typeorm.service';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { FileInfo } from './file.entity';
 
+export interface IFileRepository {
+	saveFileInfo: (fileInfo: Omit<FileInfo, 'uploadDate'>) => Promise<FileInfo>;
+	getInfoById: (id: string) => Promise<FileInfo | null>;
+	getListOfFilesInfo: (skipSize: number, listSize: number) => Promise<FileInfo[]>;
+	removeFileInfoById: (id: string) => Promise<DeleteResult>;
+	updateFileInfoById: (id: string, newFileInfo: Omit<FileInfo, 'id'>) => Promise<UpdateResult>;
+}
+
 @injectable()
-export class FileRepository {
+export class FileRepository implements IFileRepository {
 	fileModel: Repository<FileInfo>;
 
 	constructor(@inject(TYPES.TypeormService) private typeormService: TypeormService) {

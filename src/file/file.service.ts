@@ -6,7 +6,7 @@ import * as path from 'path';
 import { IConfigService } from '../config/config.service';
 import { TYPES, UPLOAD_DIR_TITLE } from '../common/constants';
 import { FileInfo } from './file.entity';
-import { FileRepository } from './file.repository';
+import { IFileRepository } from './file.repository';
 import {
 	FILE_INFO_NOT_FOUND_ERROR,
 	PREPARE_FILE_INFO_FAILED,
