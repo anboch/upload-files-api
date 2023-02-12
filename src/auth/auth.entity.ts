@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryColumn, Index } from 'typeorm';
 
 @Entity()
-export class JWTBlacklist {
+export class JWTBlacklistItem {
 	@PrimaryColumn()
 	token: string;
 

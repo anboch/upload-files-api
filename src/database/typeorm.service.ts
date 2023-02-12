@@ -7,7 +7,7 @@ import { ILogger } from '../logger/logger.service';
 import { TYPES } from '../common/constants';
 import { IConfigService } from '../config/config.service';
 import { User } from '../user/user.entity';
-import { JWTBlacklist, Session } from '../auth/auth.entity';
+import { JWTBlacklistItem, Session } from '../auth/auth.entity';
 import { FileInfo } from '../file/file.entity';
 
 @injectable()
@@ -26,7 +26,7 @@ export class TypeormService {
 			username: this.configService.get('MY_SQL_DB_USER'),
 			password: this.configService.get('MY_SQL_DB_PASSWORD'),
 			database: this.configService.get('MY_SQL_DB_DATABASE'),
-			entities: [User, JWTBlacklist, Session, FileInfo],
+			entities: [User, JWTBlacklistItem, Session, FileInfo],
 			synchronize: true,
 			logging: false,
 		};

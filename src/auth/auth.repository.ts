@@ -4,29 +4,33 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../common/constants';
 import { TypeormService } from '../database/typeorm.service';
 import { DeleteResult, Repository } from 'typeorm';
-import { JWTBlacklist, Session } from './auth.entity';
+import { JWTBlacklistItem, Session } from './auth.entity';
+
 
 @injectable()
 export class AuthRepository {
 	// todo redo authRepository to REDIS for performance
-	jwtBlacklistModel: Repository<JWTBlacklist>;
-	sessionModel: Repository<Session>;
+	private jwtBlacklistModel: Repository<JWTBlacklistItem>;
+	private sessionModel: Repository<Session>;
 
 	constructor(@inject(TYPES.TypeormService) private typeormService: TypeormService) {
-		this.jwtBlacklistModel = this.typeormService.dataSource.getRepository(JWTBlacklist);
+		this.jwtBlacklistModel = this.typeormService.dataSource.getRepository(JWTBlacklistItem);
 		this.sessionModel = this.typeormService.dataSource.getRepository(Session);
 	}
 
-	async addJWTtoBlacklist(token: string, tokenExpiresOnSec: number | null): Promise<JWTBlacklist> {
+	async addJWTtoBlacklist(
+		token: string,
+		tokenExpiresOnSec: number | null,
+	): Promise<JWTBlacklistItem> {
 		return this.jwtBlacklistModel.save({ token, tokenExpiresOnSec });
 	}
 
 	async removeExpiredTokensFromBlackList(): Promise<void> {
 		await this.jwtBlacklistModel
-			.createQueryBuilder('jwt_blackList')
+			.createQueryBuilder('jwt_blacklist_item')
 			.delete()
-			.where('jwt_blackList.tokenExpiresOnSec <= :currentDateSec', {
-				currentDateSec: Date.now() / 1000,
+			.where('jwt_blacklist_item.tokenExpiresOnSec <= :currentDateSec', {
+				currentDateSec: Math.floor(Date.now() / 1000),
 			})
 			.execute();
 	}
